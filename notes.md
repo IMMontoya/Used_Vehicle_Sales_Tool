@@ -7,3 +7,7 @@ Follow along with blog post to get a feel for data and fulfill most minimum requ
 ## Consider  
 
 The use of scipy and altier.
+
+## Notes on data
+
+Plenty of blanks in the csv file.
