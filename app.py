@@ -123,15 +123,15 @@ stats = stats.drop('std')
 # Convert the stats to a dataframe
 stats = stats.to_frame()
 # Add a description column
-stats['Description'] = ['# of matching vehicles in dataset', 'Average price',
-                        'Minimum price', '25th percentile', 'Median price', '75th percentile', 'Maximum price']
+stats['Description'] = ['# of matching vehicles in dataset', 'Average price (USD)',
+                        'Minimum price (USD)', '25th percentile (USD)', 'Median price (USD)', '75th percentile (USD)', 'Maximum price (USD)']
 # Re-arrange the columns
 stats = stats[['Description', 'price']]
 # Rename the price column
 stats.rename(columns={'price': 'Value'}, inplace=True)
-# Format everything but the count index to be in dollars
+# Format the Value column to nearest cent
 stats['Value'] = stats['Value'].apply(
-    lambda x: f'${x:,.2f}' if x != stats.loc['count', 'Value'] else x)
+    lambda x: f'{x:.2f}')
 
 # Create a histogram of the prices
 price_dist_fig = px.histogram(filtered_df, x='price',
