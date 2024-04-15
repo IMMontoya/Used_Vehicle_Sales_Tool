@@ -16,9 +16,8 @@ keep_columns = ['price', 'model_year',
 # ... by dropping the columns not in the keep_columns list
 df = df[keep_columns]
 
-# Drop rows missing the year since that will be a necessary filter
-df = df.dropna(subset=['model_year'])
-# Missing odometer can stay since they will be dropped by default when creating the scatter plot
+# Drop rows missing the year or the odometer
+df = df.dropna(subset=['model_year', 'odometer'])
 
 # Strip and lowercase the string columns
 string_columns = ['model', 'condition', 'fuel']
@@ -42,15 +41,23 @@ df.rename(columns={'model_year': 'year', 'fuel': 'fuel_type',
 df = df[['price', 'make', 'model',
          'year', 'condition', 'fuel_type', 'odometer_miles']]
 
-# Change the year column to an integer
+# Change the year and odometer columns to integer
 df['year'] = df['year'].astype(int)
+df['odometer_miles'] = df['odometer_miles'].astype(int)
+
+
+# Set the template for the plotly figures
+px_template = 'plotly_dark'
 
 # ---------------------------------#
+
 # Title
 st.title('Temp Title')
-# ---------------------------------#
 
 # ---------------------------------#
+# Section 1
+
+
 # Header
 st.header('Price Distribution for Selected Vehicle')
 
@@ -59,21 +66,21 @@ arg_col1, arg_col2, arg_col3 = st.columns(3)
 
 with arg_col1:
     # Create a select box for the manufacturers
-    manufacturers_list = df['make'].unique()
+    manufacturers_list = sorted(df['make'].unique())
     manufacturer = st.selectbox('Select a manufacturer', manufacturers_list)
     # Filter the data
     filtered_df = df[df['make'] == manufacturer]
 
 with arg_col2:
     # Create a select box for the models
-    model_list = filtered_df['model'].unique()
+    model_list = sorted(filtered_df['model'].unique())
     model = st.selectbox('Select a model', model_list)
     # Filter the data
     filtered_df = filtered_df[filtered_df['model'] == model]
 
 with arg_col3:
     # Create a select box for the years
-    year_list = filtered_df['year'].unique()
+    year_list = sorted(filtered_df['year'].unique(), reverse=True)
     year = st.selectbox('Select a year', year_list)
     # Filter the data
     filtered_df = filtered_df[filtered_df['year'] == year]
@@ -85,7 +92,7 @@ with opt_arg_col1:
     # Create a checkbox for the condition
     condition_chbox = st.checkbox('Specify the Condition?')
     if condition_chbox:
-        condition_list = filtered_df['condition'].unique()
+        condition_list = sorted(filtered_df['condition'].unique())
         condition = st.selectbox('Select a condition', condition_list)
         # Filter the data
         filtered_df = filtered_df[filtered_df['condition'] == condition]
@@ -94,7 +101,7 @@ with opt_arg_col2:
     # Create a checkbox for the fuel type
     fuel_chbox = st.checkbox('Specify the Fuel Type?')
     if fuel_chbox:
-        fuel_list = filtered_df['fuel_type'].unique()
+        fuel_list = sorted(filtered_df['fuel_type'].unique())
         fuel = st.selectbox('Select a fuel type', fuel_list)
         # Filter the data
         filtered_df = filtered_df[filtered_df['fuel_type'] == fuel]
@@ -132,16 +139,73 @@ stats.rename(columns={'price': 'Value'}, inplace=True)
 # Format the Value column to nearest cent
 stats['Value'] = stats['Value'].apply(
     lambda x: f'{x:.2f}')
+# Reset the index
+stats = stats.reset_index(drop=True)
 
 # Create a histogram of the prices
 price_dist_fig = px.histogram(filtered_df, x='price',
-                              histnorm='percent', template='plotly_dark', labels={'price': 'Price in USD'})
+                              histnorm='percent', template=px_template, labels={'price': 'Price in USD'}, width=350)
 
 
-# Show the histogram
-st.plotly_chart(price_dist_fig)
+# Set two columns for the histogram and the stats
+hist_col, stats_col = st.columns(2)
 
-# Show the stats
-st.write("Here are the stats for your selection:", stats)
+with hist_col:
+    # Show the histogram
+    st.plotly_chart(price_dist_fig)
+
+with stats_col:
+    # Insert spacer with a specific height
+    st.write("<div style='margin-top: 55px'></div>", unsafe_allow_html=True)
+    # Show the stats
+    st.write("Here are the stats for your selection based on the dataset:")
+    st.table(stats)
 
 # ---------------------------------#
+# Section 2
+
+# Header
+st.header('Selected Vehicle Depreciation')
+
+# Calculate slope and intercept for the linear regression for the depreciation statement
+# Calculate the unique counts of odometer readings and prices
+unique_odometers = filtered_df['odometer_miles'].nunique()
+unique_prices = filtered_df['price'].nunique()
+
+# Check if there is enough variation in odometer readings and prices
+if unique_odometers > 1 and unique_prices > 1:
+    # Perform the regression
+    slope, intercept = np.polyfit(
+        filtered_df['odometer_miles'], filtered_df['price'], 1)
+    depreciation = slope * 1000
+    depreciation_str = f'Based on the dataset, your selected vehicle depreciates by ${(-1 * depreciation):.2f} per 1,000 miles.'
+else:
+    # Set depreciation to zero or appropriate message since no variability
+    depreciation_str = 'Insufficient data variability to calculate depreciation.'
+
+# Create the scatter plot
+fig = px.scatter(filtered_df, x='odometer_miles', y='price',
+                 trendline='ols', template=px_template, labels={'price': 'Price in USD', 'odometer_miles': 'Miles on Odometer'})
+
+# Only show if Oddometer is not specified
+if odometer_chbox:
+    # Message for the user
+    st.write(
+        'Please deselect "Specify the Milage?" to see the depreciation per odometer milage.')
+else:
+    # Show the depreciation message
+    st.write(depreciation_str)
+    # Show the scatter plot
+    st.plotly_chart(fig)
+
+# ---------------------------------#
+# Section 3
+
+st.header('All Results for the Selected Vehicle')
+
+# Change column names for displaying the dataframe
+df_display = filtered_df.copy()
+df_display.columns = ['Price (USD)', 'Make', 'Model',
+                      'Year', 'Condition', 'Fuel Type', 'Odometer (miles)']
+# Show the df
+st.table(df_display)
