@@ -53,7 +53,7 @@ px_template = 'plotly_dark'
 # ---------------------------------#
 
 # Title
-st.title('Used ')
+st.title('Used Vehicle Sales Tool')
 
 # ---------------------------------#
 # Section 1
