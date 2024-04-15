@@ -53,7 +53,7 @@ px_template = 'plotly_dark'
 # ---------------------------------#
 
 # Title
-st.title('Temp Title')
+st.title('Used ')
 
 # ---------------------------------#
 # Section 1
