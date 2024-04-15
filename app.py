@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import statsmodels.api as sm  # For the ols trendline in the scatter plots
 
 # Import local libraries
 import functions as f
