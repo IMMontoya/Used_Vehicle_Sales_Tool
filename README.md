@@ -1,6 +1,6 @@
 # Used Vehicle Sales App
 
-This Streamlit application provides detailed analytics on used vehicle sales, allowing users to explore price distributions and depreciation based on a variety of filters such as make, model, year, condition, fuel type, and odometer readings. It is designed for potential buyers, sellers, or analysts interested in the used car market.
+This Streamlit application provides detailed analytics on used vehicle advertisements prices, allowing users to explore price distributions and depreciation based on a variety of filters such as make, model, year, condition, fuel type, and odometer readings. It is designed for potential buyers, sellers, or analysts interested in the used car market.
 
 You can view the application [here](https://used-vehicle-sales-tool.onrender.com/#price-distribution-for-selected-vehicle)
 
