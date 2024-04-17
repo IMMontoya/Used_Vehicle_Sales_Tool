@@ -5,46 +5,14 @@ import numpy as np
 import plotly.express as px
 import statsmodels.api as sm  # For the ols trendline in the scatter plots
 
-# Import local libraries
-import functions as f
 
 # Load the data from the csv file
-df = pd.read_csv('vehicles_us.csv')
+df = pd.read_csv('vehicles_us_cleaned.csv')  # Cleaned per the EDA notebook
 
-# Keep only the necessary columns
-keep_columns = ['price', 'model_year',
-                'model', 'condition', 'fuel', 'odometer']
-# ... by dropping the columns not in the keep_columns list
-df = df[keep_columns]
 
-# Drop rows missing the year or the odometer
-df = df.dropna(subset=['model_year', 'odometer'])
-
-# Strip and lowercase the string columns
-string_columns = ['model', 'condition', 'fuel']
-df[string_columns] = df[string_columns].apply(
-    lambda x: x.str.strip().str.lower())
-
-# Apply the normalize ford f series function to the model column
-df['model'] = df['model'].apply(f.normalize_ford_f_series)
-
-# Create make column by splitting the model column
-df['make'] = df['model'].str.split(' ').str[0]
-# Remove the make from the model column
-df['model'] = df['model'].str.split(
-    ' ').str[1:].str.join(' ')
-
-# Rename columns to my liking
-df.rename(columns={'model_year': 'year', 'fuel': 'fuel_type',
-                   'odometer': 'odometer_miles'}, inplace=True)
-
-# Rearrange the columns to my liking
-df = df[['price', 'make', 'model',
-         'year', 'condition', 'fuel_type', 'odometer_miles']]
-
-# Change the year and odometer columns to integer
-df['year'] = df['year'].astype(int)
-df['odometer_miles'] = df['odometer_miles'].astype(int)
+# Drop the unnecessary columns
+df = df.drop(columns=['cylinders', 'transmission',
+             'type', 'paint_color', 'is_4wd', 'date_posted', 'days_listed'])
 
 
 # Set the template for the plotly figures
@@ -111,14 +79,21 @@ with opt_arg_col3:
     # Create a checkbox for the odometer
     odometer_chbox = st.checkbox('Specify the Milage?')
     if odometer_chbox:
+        # Display message to user
+        st.write(
+            'Note: Vehicles with no odometer reading will be excluded when specifying the milage.')
         # Create a slider for the odometer
         min_odometer = int(filtered_df['odometer_miles'].min())
         max_odometer = int(filtered_df['odometer_miles'].max())
-        odometer = st.slider('Select an odometer range', min_odometer,
-                             max_odometer, (min_odometer, max_odometer))
-        # Filter the data
-        filtered_df = filtered_df[(filtered_df['odometer_miles'] >= odometer[0]) & (
-            filtered_df['odometer_miles'] <= odometer[1])]
+        if min_odometer == max_odometer:  # If all vehicles have the same odometer reading
+            st.write(
+                f'All vehicles have an odometer reading of {min_odometer} miles.')
+        else:
+            odometer = st.slider('Select an odometer range', min_odometer,
+                                 max_odometer, (min_odometer, max_odometer))
+            # Filter the data
+            filtered_df = filtered_df[(filtered_df['odometer_miles'] >= odometer[0]) & (
+                filtered_df['odometer_miles'] <= odometer[1])]
 
 
 # Reset the index
@@ -167,6 +142,9 @@ with stats_col:
 
 # Header
 st.header('Selected Vehicle Depreciation')
+
+# Drop NaN values in the odometer column
+filtered_df = filtered_df.dropna(subset=['odometer_miles'])
 
 # Calculate slope and intercept for the linear regression for the depreciation statement
 # Calculate the unique counts of odometer readings and prices
