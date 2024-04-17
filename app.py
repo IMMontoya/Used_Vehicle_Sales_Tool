@@ -181,7 +181,7 @@ if unique_odometers > 1 and unique_prices > 1:
     depreciation = slope * 1000
     depreciation_str = f'Based on the dataset, your selected vehicle depreciates by ${(-1 * depreciation):.2f} per 1,000 miles.'
 else:
-    # Set depreciation to zero or appropriate message since no variability
+    # Set depreciation message since no variability
     depreciation_str = 'Insufficient data variability to calculate depreciation.'
 
 # Create the scatter plot
