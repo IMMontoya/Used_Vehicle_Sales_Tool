@@ -2,7 +2,25 @@
 
 This Streamlit application provides detailed analytics on used vehicle advertisements prices, allowing users to explore price distributions and depreciation based on a variety of filters such as make, model, year, condition, fuel type, and odometer readings. It is designed for potential buyers, sellers, or analysts interested in the used car market.
 
-You can view the application [here](https://used-vehicle-sales-tool.onrender.com/#price-distribution-for-selected-vehicle)
+## Table of Contents
+
+[Application](https://used-vehicle-sales-tool.onrender.com/#price-distribution-for-selected-vehicle)  
+[Notebook](/notebooks/EDA.ipynb)  
+[Installation](#installation)  
+[Features](#features)  
+[Usage](#usage)  
+[Libraries Used](#libraries-used)
+
+## Installation
+
+To run this application locally, you need Python and several dependencies:
+
+```bash
+git clone https://github.com/IMMontoya/Used_Vehicle_Sales_Tool.git
+cd Used_Vehicle_Sales_Tool
+pip install -r requirements.txt
+streamlit run app.py
+```
 
 ## Features
 
@@ -22,23 +40,10 @@ Once the application is running, navigate through the interface:
 3. View histograms, statistics, and depreciation information based on your selections.
 4. The final section displays a detailed table of all vehicles that match your criteria.
 
-## Contributing
+## Libraries Used
 
-Feel free to fork the repository and submit pull requests. You can also open issues if you find bugs or have suggestions for improvements.
-
-## Installation
-
-To run this application locally, you need Python and several dependencies:
-
-```bash
-git clone https://github.com/IMMontoya/Used_Vehicle_Sales_Tool.git
-cd Used_Vehicle_Sales_Tool
-pip install -r requirements.txt
-streamlit run app.py
-```
-
-## Path to Future Improvements
-
-1. Incorporate more recent and larger datasets to improve the accuracy and breadth of market insights.  
-
-2. Implement proper capitalization for vehicle makes and models (e.g., 'gmc' to 'GMC') to enhance readability.  
+Python 3.11.8  
+plotly version=5.15.0  
+numpy version=1.26.4  
+pandas version=2.0.3  
+streamlit version=1.25.0  
